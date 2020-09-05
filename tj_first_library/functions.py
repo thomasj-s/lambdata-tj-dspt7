@@ -1,7 +1,11 @@
-from sklearn.model_selection import train_test_split
-import pandas as pd 
+from sklearn.pipeline import make_pipeline
 import category_encoders as ce
 from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
 
 def basic_classifier(df, columns, target):
 
