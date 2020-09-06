@@ -9,50 +9,68 @@ import pandas as pd
 
 def basic_classifier(df, columns, target):
 
-  df = pd.DataFrame(df)  
+  '''
+     This function is a elementery RandomForest classifier that cleans, splits,
+     and predicts on validation set.  Returns metrics accuracy, precision (lab_class = 1),
+     recall, and f1.
+     
+     Takes three arguments : raw dataframe, list of column headers for that dataframe (df.columns), 
+     and the binary target column name as a string.
+
+     Fills NaNs with string value 'missing', applies OrdinalEncoder, and applies
+     SimpleImputer with strategy 'mean'.
+
+  '''
+
+  df = pd.DataFrame(df)  # This section assigns column headers and fills nan with 'missing'
   df.columns = columns
   df = df.fillna('missing')
   
-  cleaner = make_pipeline(
+  cleaner = make_pipeline(   # This section defines our basic pipeline
       ce.OrdinalEncoder(),
       SimpleImputer(strategy='mean')
   )
   
-  df = cleaner.fit_transform(df)
+  df = cleaner.fit_transform(df) # This section applies pipeline to our dataframe
   df1 = pd.DataFrame(df)
   df1.columns = columns
 
-  train, test = train_test_split(df, train_size=.6)
+  train, test = train_test_split(df, train_size=.6) # This section creates our train / val sets
   val, test = train_test_split(test, train_size=.6)
  
-  train = pd.DataFrame(train)
+  train = pd.DataFrame(train) # This section defines our train / val arrays as dataframes
   val = pd.DataFrame(val)
   test = pd.DataFrame(test)
   
-  train.columns = columns
+  train.columns = columns # This section applies headers to our split dataframes
   val.columns = columns
   test.columns = columns
   
-  xtrain = train.drop(columns=target)
+  xtrain = train.drop(columns=target) # This section defines train features and target
   ytrain = train[target]
 
-  xval = val.drop(columns=target)
+  xval = val.drop(columns=target) # This section defines val features and target
   yval = val[target]
 
-  model = RandomForestClassifier(max_depth=5)
-
-  model.fit(xtrain, ytrain)
+  model = RandomForestClassifier(max_depth=5) # Give a max depth of 5 to minimize overfitting
+ 
+  model.fit(xtrain, ytrain) # Fit model and predict on val set
   guesses = model.predict(xval)
 
-  accuracy = accuracy_score(yval, guesses)
+  accuracy = accuracy_score(yval, guesses) # Calculate metrics
   precision = precision_score(yval, guesses)
   recall = recall_score(yval, guesses)
   f1 = f1_score(yval, guesses)
 
+  # Return metrics
   return f'accuracy = {accuracy}', f'precision = {precision}', f'recall = {recall}', f'f1 = {f1}'
 
 
 def times_100(number):
+
+ '''
+  Accepts one numerical value as an argument, returns that value multiplied by 100.
+ '''
   return number*100
 print(times_100(5))
 
