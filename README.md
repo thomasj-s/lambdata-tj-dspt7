@@ -3,7 +3,7 @@ Making my own package of functions for python.
 
 # Installation
 
-Run '!pip install https://test.pypi.org/project/lambdata-tj-dspt7/0.0.2/'
+Run '!pip install https://test.pypi.org/project/lambdata-tj-dspt7/0.0.3/'
 All needed libraries are imported with the file.
 
 # Usage

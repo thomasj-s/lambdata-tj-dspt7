@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="lambdata-tj-dspt7", # Replace with your own username
-    version="0.0.2",
+    version="0.0.4",
     author="Thomas Shorts",
     author_email="thomasjshorts@gmail.com",
     description="My first python",

@@ -19,61 +19,61 @@ def basic_classifier(df, columns, target):
 
      Fills NaNs with string value 'missing', applies OrdinalEncoder, and applies
      SimpleImputer with strategy 'mean'.
-
   '''
 
-  df = pd.DataFrame(df)  # This section assigns column headers and fills nan with 'missing'
-  df.columns = columns
+  # This section defines input as 'dataframe' and fills nan values with
+  # string value, 'missing'
+  df = pd.DataFrame(df)  
   df = df.fillna('missing')
-  
-  cleaner = make_pipeline(   # This section defines our basic pipeline
+
+  # This section defines our basic pipeline
+  cleaner = make_pipeline(   
       ce.OrdinalEncoder(),
       SimpleImputer(strategy='mean')
   )
   
-  df = cleaner.fit_transform(df) # This section applies pipeline to our dataframe
-  df1 = pd.DataFrame(df)
-  df1.columns = columns
+  # This section applies pipeline to our dataframe
+  df_clean = cleaner.fit_transform(df) 
+  df_clean = pd.DataFrame(df_clean)
+  df_clean.columns = columns
 
-  train, test = train_test_split(df, train_size=.6) # This section creates our train / val sets
+  # This section aplits our transformed dataframe
+  train, test = train_test_split(df_clean, train_size=.6) 
   val, test = train_test_split(test, train_size=.6)
  
-  train = pd.DataFrame(train) # This section defines our train / val arrays as dataframes
-  val = pd.DataFrame(val)
-  test = pd.DataFrame(test)
-  
-  train.columns = columns # This section applies headers to our split dataframes
-  val.columns = columns
-  test.columns = columns
-  
-  xtrain = train.drop(columns=target) # This section defines train features and target
-  ytrain = train[target]
+  # This section creates a class we can use to derive feature and target
+  # sets from our split data sets.  By using this class, we do not
+  # have to create a separate x and y group for our train, and val sets.
+  class BaseSet:
+    def __init__(self, features, target):
+      self.df = df
+      self.features = features
+      self.target = target
 
-  xval = val.drop(columns=target) # This section defines val features and target
-  yval = val[target]
 
-  model = RandomForestClassifier(max_depth=5) # Give a max depth of 5 to minimize overfitting
- 
-  model.fit(xtrain, ytrain) # Fit model and predict on val set
-  guesses = model.predict(xval)
+  train_base = BaseSet(train.drop(columns=target), train[target])
+  val_base = BaseSet(val.drop(columns=target), val[target])
+  test_base = BaseSet(test.drop(columns=target), test[target])
 
-  accuracy = accuracy_score(yval, guesses) # Calculate metrics
-  precision = precision_score(yval, guesses)
-  recall = recall_score(yval, guesses)
-  f1 = f1_score(yval, guesses)
+  # The remaining code fits an elementary random forest model to our
+  # clean data, using the BaseSet class items to predict and report
+  # evaluation metrics.
+  model = RandomForestClassifier(max_depth = 5)
 
-  # Return metrics
+  model.fit(train_base.features, train_base.target)
+  guesses = model.predict(val_base.features)
+
+  accuracy = accuracy_score(val_base.target, guesses) # Calculate metrics
+  precision = precision_score(val_base.target, guesses)
+  recall = recall_score(val_base.target, guesses)
+  f1 = f1_score(val_base.target, guesses)
+
   return f'accuracy = {accuracy}', f'precision = {precision}', f'recall = {recall}', f'f1 = {f1}'
 
 
 def times_100(number):
-
- '''
-  Accepts one numerical value as an argument, returns that value multiplied by 100.
- '''
-  return number*100
-print(times_100(5))
-
+    return number*100
+  
 
 def train_validation_test_split(self, features, target,
                                     train_size=0.7, val_size=0.1,
@@ -96,3 +96,4 @@ def train_validation_test_split(self, features, target,
         X_train_val, X_test, y_train_val, y_test = train_test_split(self.X, self.y, test_size=test_size, random_state=random_state, shuffle=shuffle)
         X_train, X_val, y_train, y_val = train_test_split(X_train_val, y_train_val, test_size=val_size / (train_size + val_size),random_state=random_state, shuffle=shuffle)
         return X_train, X_val, X_test, y_train, y_val, y_test
+
